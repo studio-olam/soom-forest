@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>숨이 머무는 숲</title>
+<style>
+:root{--fg:#f4f4ef;--muted:rgba(244,244,239,.78);--line:rgba(255,255,255,.34)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#111;color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Pretendard",Arial,sans-serif}
+body{min-height:100svh}
+.page{position:relative;min-height:100svh;overflow:hidden;background-image:linear-gradient(to bottom,rgba(5,10,12,.18),rgba(5,10,12,.54)),url('forest.jpg');background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:space-between;padding:max(28px,env(safe-area-inset-top)) 26px max(30px,env(safe-area-inset-bottom))}
+.page:after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.08) 0%,rgba(0,0,0,.04) 32%,rgba(0,0,0,.58) 100%);pointer-events:none}
+.top,.bottom{position:relative;z-index:1}
+.kicker{font-size:13px;letter-spacing:.15em;opacity:.78;margin-bottom:14px}
+h1{font-size:clamp(32px,9vw,54px);line-height:1.08;margin:0;font-weight:600;letter-spacing:-.045em}
+.artist{font-size:15px;margin-top:10px;opacity:.85;letter-spacing:.02em}
+.guide{font-size:14px;letter-spacing:.08em;margin-bottom:18px;color:var(--muted)}
+.player{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:rgba(10,14,16,.38);border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:18px 18px 16px;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.row{display:flex;align-items:center;gap:14px}
+.play{width:58px;height:58px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.94);color:#111;display:grid;place-items:center;font-size:22px;cursor:pointer;flex:0 0 auto}
+.meta{min-width:0;flex:1}
+.title{font-size:16px;font-weight:600;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.time{font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted)}
+input[type=range]{width:100%;margin:15px 0 4px;appearance:none;height:2px;background:var(--line);border-radius:999px;outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:white;box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+.note{font-size:12px;line-height:1.55;color:rgba(244,244,239,.72);margin-top:13px}
+@media(min-width:720px){.page{padding-left:max(48px,calc((100vw - 720px)/2));padding-right:max(48px,calc((100vw - 720px)/2))}}
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="top">
+    <div class="kicker">왕릉 숲결</div>
+    <h1>숨이 머무는 숲</h1>
+    <div class="artist">Cho Eunhee</div>
+  </section>
+  <section class="bottom">
+    <div class="guide">걷기 · 듣기 · 머물기 · 다시 듣기</div>
+    <div class="player">
+      <div class="row">
+        <button class="play" id="play" aria-label="재생">▶</button>
+        <div class="meta">
+          <div class="title">《숨이 머무는 숲》</div>
+          <div class="time"><span id="cur">00:00</span> / <span id="dur">--:--</span></div>
+        </div>
+      </div>
+      <input id="seek" type="range" min="0" max="1000" value="0" aria-label="재생 위치" />
+      <div class="note">이어폰을 착용하고 천천히 걸으며 들어주세요.</div>
+      <div id="audio-status" class="note" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+<audio id="audio" preload="metadata" playsinline src="audio/soom-forest.mp3?v=20261011"></audio>
+<script>
+const a=document.getElementById('audio'),b=document.getElementById('play'),s=document.getElementById('seek'),c=document.getElementById('cur'),d=document.getElementById('dur');
+const report=document.getElementById('audio-status');
+const fmt=t=>{if(!Number.isFinite(t))return'--:--';const m=Math.floor(t/60),ss=Math.floor(t%60);return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0')};
+a.addEventListener('error',()=>{report.textContent='음원을 불러오지 못했습니다. 연결 상태를 확인하고 다시 열어 주세요.'});
+a.addEventListener('loadedmetadata',()=>d.textContent=fmt(a.duration));
+b.addEventListener('click',async()=>{if(a.paused){try{await a.play();report.textContent=""}catch(e){report.textContent="음원을 재생할 수 없습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요."}}else a.pause()});
+a.addEventListener('play',()=>{b.textContent='Ⅱ';b.setAttribute('aria-label','일시정지')});
+a.addEventListener('pause',()=>{b.textContent='▶';b.setAttribute('aria-label','재생')});
+a.addEventListener('timeupdate',()=>{c.textContent=fmt(a.currentTime);if(a.duration)s.value=Math.round((a.currentTime/a.duration)*1000)});
+s.addEventListener('input',()=>{if(a.duration)a.currentTime=(s.value/1000)*a.duration});
+</script>
+</body>
+</html>
